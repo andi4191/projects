@@ -1,1 +1,6 @@
 
+This project has following package depencies:
+1. openpyxl
+2. xlrd
+3. matplotlib
+
