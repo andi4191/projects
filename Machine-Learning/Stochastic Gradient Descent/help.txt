@@ -1,0 +1,152 @@
+CSE 574 Machine Learning
+
+Project-2 Report
+
+                                        
+Introduction
+The scope of this report is to demonstrate the implementation of Project2 for CSE 574 Machine Learning course. The main idea behind implementing this project is to learn how to train the Linear Regression and Stochastic Gradient Descent models over two sets of data provided for this project.
+We are given two sets of data. First, a LeToR (Learning to Rank) v4.0 dataset is provided. We are required to use the ‘Querylevelnorm.txt’ for this project from MQ2007. This dataset has 69623 data samples with 46 feature variables. Second, a synthetic data set is provided with some noise added to it. It has 20000 data samples with 10 feature variables.
+
+Partitioning of DataSet:
+For a good model, it is best practice to partition the dataset into training set (to train the model and evaluate weights), validation set (to tune the hyperparameters to refine the model performance by optimization of model complexity via hyper parameters such as M and ƛ) and testing set (to evaluate the trained model followed by tuning). Each of the data set has been shuffled and divided into 3 parts:
+Training Set: For a given dataset, 80% of the dataset from the start has been considered as the training set. Since the shuffling has been done for the dataset, it would not make much of a difference if the training set has been considered from bottom to the top of the data set or vice-versa. In case of LeToR dataset it consists of 55698 samples and in Synthetic data it consists of 16000 samples.
+Validation Set: For a given dataset, next 10% of the data after training set is considered as a validation set to tune the hyper parameters to reduce the mean squared error for the model trained from the training set. In case of LeToR dataset it consists of 6962 samples (starting from 55699) and in Synthetic data is consists of 2000 samples (starting from 16001).
+Testing Set: For a given dataset, next 10% of the data after validation set is considered as a testing set to evaluate the performance of the model in terms of Erms. In case of LeToR dataset it consists of ~6962 (all samples left after training and validation set) samples and in Synthetic data is consists of 2000 samples.
+Approach:
+Introduction into procedure used to train different models are as follows:
+Closed form solution is obtained by using the following equation 
+     (Image Courtesy: Project Requirement Document)
+
+Where ϕ is determined by
+
+With regularization it is calculated by the following equation
+
+Error is calculated in data dependency and weight dependency as follows:
+
+
+
+Where ƛ is the regularization coefficient tuned to overcome the overfitting problem. It controls the complexity of the model by taking care of the overfitting problem. Its tuning is illustrated in the form of plots at the end of this report. 
+For Stochastic Gradient Descent Model the error is calculated in the form of 🔻E which illustrates the gradient of error over the curve.
+
+
+Weight is updated with learning rate to reach the local minima from current position by pursuing the descent towards the minimal error.
+
+Overall performance of the model is measured in terms of its root mean square of error given by:
+
+Hyper parameter Tuning:
+For a model trained on a training set, it is required to tune the hyper parameters to improve the Erms (Error root mean square) of the model over the validation set and use the optimal values of the hyper parameters for calculating the trained weight and use those set of weights into evaluating the performance over the validation and re-tune with different hyperparameters, if there is no improvement with current set of tuned parameters. The cycle continues until an optimal values of hyper parameters are obtained
+
+Tuning Hyperparameters (M,ƛ,μ,𝛈,Σ) 
+(Note: Please refer to the plots observations at the end of the report)
+Hyper parameter M (Number of Basis Functions):
+For tuning this parameter, I used grid selection mechanism where the performance is evaluated for every M in the range of 1 to 30 for Real LeToR data and M in the range 1 to 10 for Synthetic data as the feature dimensionality for the data sets are 46 and and 10 respectively. The performance is tuned for validation set so in order to minimize the Erms validation following steps are done:
+Evaluated the weight for training set with new hyper parameters as the M changes so does the weight dimension as the weight vector would be (Mx1) dimension.
+Using the weights obtained over training set with updated M value, and Design matrix from validation set. Erms is calculated for validation set.
+Step 1 and 2 is iterated until a better value is obtained for Erms over validation set.
+The weight obtained from Step 3 is our optimal weight and using that weight we calculate the Erms over Training and Testing set.
+Note: 
+1. Since the parameter is tuned in such a way that Erms for validation set is minimized therefore it is possible that Erms validation is lower than Erms of training and testing set.
+2. Higher value of M leads to higher complexity of computation as the dimensionality is increased for calculation. So, this should be avoided unless necessary.
+
+2. Hyper parameter ƛ(Regularization Coefficient Lambda):
+This parameter is used to control the model complexity and therefore controls the degree of overfitting. If the mean square error for the model is minimized with extreme measures. It leads to overfitting or underfitting case. In case of overfitting the model passes through almost each and every training samples but the variance turns out to be high enough to lead the prediction far apart from the target value over the future(unseen) test set. Therefore, if the lambda is kept low, then the performance turns out to be bad as the variance is high.
+On the contrary, if the lambda is kept high then the model is under fitted to the training sample due to dominance of the Ew part of the room mean square formula. Hence, the bias is high in this case and the performance of the model is not great either. 
+To tune the hyper parameter ƛ in order to enhance the performance of the trained model by controlling the overfitting, it is required to obtain the optimal value of ƛ in such a way that the model is neither high biased (under fitted) nor high variance (overfitted).
+So, the grid search selection method is used for ƛ too for all values of M(number of basis function) to get the model with lowest Erms over validation set without leading to an overfitting.
+
+
+
+Above output screenshot demonstrates the tuning parameters M and ƛ over closed form for LeToR dataset. The optimal parameters were:
+M=30
+ƛ=0.3
+Erms <Training, Validation, Testing>: 
+<0.5709379383,0.57202194246,0.572163610734>
+Weights:
+<0.314143797078 -0.241654895503 -0.241649074676 -0.24164913488 -0.241649074676 -0.241649074676 -0.309796177543 -0.246754412251 0.527581694555 -0.242380859926 0.527581694555 -0.242833402787 -0.241649074676 -0.241649074676 -0.241649074676 -0.241649074676 -0.241649074676 -0.241649130598 -0.303273388088 -0.24164672405 -0.395638971889 -0.241649074676 -0.241649075387 -0.241588385414 0.84324156936 -0.241649074676 -0.306299001327 -0.241145947872 -0.241649074676 -0.241649047336>
+
+3. Hyper parameter μ (Centroids for Clusters):
+Data needs to be pre processed to enhance the performance of the model and the pre processing of data is done by ϕ(x) function where x denotes the data samples. For instance, if we directly plug the raw values of data samples into regression model, it might not give a good performance. In fact the data should be pre processed in such a way that complexity of the model is not high to compute. Therefore, to make the data compatible to compute (as the features are vectors) and form the design matrix from ϕ(x)  to perform the prediction with varied weights. In order to compute μ is required to compute the ϕj(x). The ϕj(x) is calculated by :
+
+
+During the course of this project computation of μ was tried with k-means clustering but the weights were coming to zero for 4 out of 5 basis functions which was pointing towards the worst case of M=1 for a model (given the dataset is not formed by a linear function), therefore k-means cluster approach was dropped and M μj were picked at random from the data sets for calculating the ϕj(x) (Note: Only M-1 vectors were used as ϕ0(x)=1 gave better results). Since the data set has been shuffled, therefore the randomness would be optimal  approach to perform the calculation of ϕj(x).
+
+4. Hyper parameter 𝛈 (Learning rate):
+This hyperparameter is used for performing the Stochastic Gradient Descent where the learning rate determines the step size of the gradient taken while descending along the Error curve towards local minima. 𝛈 plays a very crucial role in SGD model as this determines the chances of reaching the local minima of Error. If the 𝛈 is higher, the local minima might be missed and the error would be something greater than minima value. On the contrary, if the 𝛈 is lower, the descend would be very slow. Also the magnitude of the gradient needs to be considered as well while descending as it changes over the curve at various points. For instance at steeper position the gradient would differ than the position at gradual curve slope. 
+
+Adaptive Learning rate: 
+This technique is used to update the learning rate depending upon the runtime observations of error while performing the stochastic gradient descend. If the current error turns out to be larger than the previous error then the step needs to be a shorter than the current step being evaluated so I decreased the 𝛈 by 𝛈/2 in order to tune the steps and avoid jumping across the minima and get the lower error value in further steps.
+This approach improved my Erms from 0.91 to 0.57 for LeToR Data Set. This approach is one of the many possible heuristics used for this project to improve the results.
+
+5. Hyper parameter Σ (Spread of basis function):
+This is a diagonal matrix with each elements across its principal diagonal being the variance of the feature  where feature is determined by the row or column position in this matrix. Hence, this is a square matrix.
+This matrix is inverted to calculate the basis function of M order. 
+In the LeToR dataset, since the feature 6,7,8,9,10 are all zero. Their variance turns out to be zero. And if multiple column have same elements in a matrix then the matrix is considered as a Singular matrix whose inversion is impossible via Matrix inversion approach. To overcome this problem I replaced the variance of zero with small value such as 0.001 so that the matrix could be made non-singular to calculate the inversion of it.
+Also this sigma matrix is multiplied by some scalar to tweak the values of Error root mean square. I tried multiple values from 0.0001 to 1000 by a factor of 10 but it turns out to be optimal at 0.1 as suggested by the project requirement document. Hence the tuning of this parameter is done with 0.1 scalar multiplier to improve the accuracy of the models (both Linear Regression and Stochastic Gradient Descend model).
+
+
+Evaluation Performance of Different Models as per my implementation:
+The screenshot clearly depicts the output for each of the model and since the output also comprises of multiple tuned parameters value so Optimal results are shown at the end(Highlighted in the screen). Apart from this, the results are mentioned separately as follows:
+Note:The data results were too big to be incorporated within the document in the form of table so they have been submitted along with code in the form of .txt files with all the results and attempted values of hyperparameters tuned
+LeToR Data Set:
+i) Closed form:
+Optimal M=30
+Optimal lambda=0.3
+Erms <Training, Validation,Testing>: <0.5709379383,0.57202194246,0.572163610734>
+Using grid selection method while tuning the hyper parameters to reduce the Erms optimal value of Erms for Closed Form Linear Regression Model is observed at M=30 and lambda=0.3 with Erms over validation as 0.57 being the minimum encountered over all the values of M and lambda. The trained weights are mentioned as above for the closed form solution.
+
+ii) Stochastic Gradient Descent
+Optimal M=5
+Optimal lambda=0.8
+Erms: <0.578994744421,0.57688515879,0.58104248034>
+trained_wt: < 0.407694901631 0.517514894071 0.661846370523 0.969047805848 0.777706881061>
+Using the Stochastic Gradient Descent model over the LeToR data set, optimal value of M and lambda was observed at 5 and 0.8 respectively. The optimal Erms observed for above tuned hyper parameters was 0.57688 hence the trained weight were as mentioned above. Grid selection method was used. Since the regression model gives continuous output and the dataset target values were discrete. Significant value of Erms could be anticipated.
+
+
+Synthetic DataSet:
+i) Closed form:
+Optimal M=10
+Optimal lambda=0.01
+Erms<Train,Validation,Test>:<0.790302009735,0.779492870969,0.792413849737>
+Trained_wt:<0.964792966518 1.02498203465 0.0350335543 0.956306523084 0.9934154849 1.02572112639 -0.955354031221 -0.955171018006 0.0342917639961 0.0337330308659>
+This dataset seems interesting as the dataset is generated by addition of noise, the results were more likely to be of lower order but the lowest value of Erms was observed at 0.7794 5 out of 7 times (performed multiple iterations for curiosity). The optimal value using closed form solution was observed as above with M in the order of 10 which is very interesting as there are 10 feature variables in this dataset. 
+
+ii) Stochastic Gradient Descent
+Optimal M=1
+Optimal lambda=0.1
+Erms<Train, Validate, Test>: <0.790352617641,0.788787734293,0.782577025578>
+trained_wt: 0.961015200497
+SGD results were very interesting. It turns out that the M=1 is the optimal value for SGD model and the Erms is slightly improved than closed form. The overfitting scenario was controlled by regularization coefficient 0.1 and it seems more likely that the synthetic data set was formed by some form of more linear model rather than the higher degree polynomial model for data generation. The optimal values were observed as mentioned above.
+
+ 
+
+The data seems to be generated from a linear function with noise parameter added and hence the value of optimal M is 1
+
+Observations while Tuning:
+
+It is observed that for fixed optimal lambda=0.1 over the LeToR dataset, closed form Erms decreases very little for all values of M. However  optimal value of M is observed at 30 for the closed form model
+
+It is observed that for fixed optimal M=30 closed form model Erms change is very minimal and the lowest value is observed at lambda=0.3 for all values of lambda in 0.1 to 1.0 over LeToR dataset
+
+It is observed that for all values of lambda with optimal M=10 over closed form solution to Synthetic Data is observed with minimum Erms at lambda=0.01. Hence the graph plotted is shown as parallel lines. A hand in hand relationship is being observed for lambda and Erms.
+
+It is observed that for a fixed optimal lambda=0.001 minimal Erms also increases along with M showing a linear hand in hand relationship. Hence the optimal value of M=1 for the synthetic dataset using closed form.
+
+It is observed that for fixed optimal M=1 using SGD (Stochastic Gradient Descent) model over Synthetic DataSet minimal value of Erms is 0.78 with lambda=0.1 for all values of lambda from 0 to 1.
+
+It is observed that for SGD model over Synthetic Data set with fixed optimal lambda=0.1 minimal Erms is observed at multiple locations but the difference scaled to 4th decimal place. Hence the optimal M is 1 over Synthetic Dataset
+
+It is observed that for a fixed optimal lambda=0.001 for closed form over Synthetic Data set minimal Erms is observed at M=1.
+
+It is observed that for fixed value of optimal lambda=0.8 over letor dataset Erms is minimal at M=5 using SGD with Erms=0.57 over LeToR data set
+
+It is observed that for fixed M=5 minimal Erms is observed at lambda=0.8 with Erms=0.57 for LeToR data set using SGD. Hence SGD easily discerns the overfitting scenario by help of lambda.
+
+For tuning the eta (learning rate) adaptive learning rate heuristics is applied which is clearly evident from the graph that when the Erms is increased then the eta is reduced to compensate the error and take a slower step. Since this plot consists of only Erms and eta updation rest of the values are not printed when the eta is stable at reduced Erms to make the plot more discernible  and easy to understand. Similar behaviour is observed for rest of the models as well. Since the plot was redundant for all the models only single instance is shown here to make the report concise and redundant proof.
+For each iteration eta is started with 1 and decreased by a factor of 2 if the error is increased than the current error.
+Since the data collection is huge and cannot be pasted to the report document. The results are tagged along with submissions in the form of text files. Please refer the same for detailed parameters values along with weights across all values of M, lambda, eta tuned.
+
+References:
+http://matplotlib.org    (For plotting the graph)
+http://www.stackoverflow.com (For debugging )
+Project 2 Requirement Document 
+
