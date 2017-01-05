@@ -1,0 +1,110 @@
+CSE 574 Machine Learning
+
+Project-3 Report
+
+Introduction
+The scope of this report is to demonstrate the implementation of Project3 for CSE 574 Machine Learning course. The main idea behind implementing this project is to learn about classification problems and solutions to solve them. Classification is a type of Supervised Machine Learning.
+The project requires implementation of Logistic Regression, Single Layer Neural Network and Convolutional Neural Network. The mentioned models are trained, validated and tested over MNIST datasets and also tested over USPS dataset for verifying whether the results over the two datasets support No Free Lunch Theorem.
+This project deals with the classification problem of recognizing handwritten digits and the two mentioned datasets are few of the most famous datasets worked on.
+For USPS dataset images, there was no classified labels associated with the images and the image scale was in 256 pixels as compared to 784 in MNIST. So opencv and PIL has been used in the code to read the images and scale them to 784 pixel so that the same trained model could be used over them. For labels, the Numerals folder has been considered only and the numeric folder names have been considered as their labels. The data has been then shuffled then used in the models.
+
+Logistic Regression:
+For logistic regression I have used mini batch gradient descent approach to reach the maximum possible accuracy. Each batch in the training set consisted of N=1000 image input samples and learning rate was tuned to eta = 0.0001 and to control the overfitting I also used a regularization parameter of 0.01. The hyperparameters were tuned here by try and run approach to achieve the maximum accuracy and minimum classification error.
+I had attempted Stochastic Gradient Descent, Gradient Descent too but the Stochastic Gradient Descent running time was too high and Gradient Descent was causing overflow due to 50000 images all at once. Therefore, to optimize the running time. I proceeded with Mini Batch Gradient Descent of size 1000 images at once. The code is self explanatory and involves the computations as per equations mentioned in the Project Requirement documents.
+
+Single Layer Neural Network:
+For Single Layer Neural Network I have used mini batch gradient descent too with M=1600 and N=10000 learning rate eta=0.0001 regularization coefficient=0.01. Again, the hyperparameters have been tuned by try and run in order to achieve maximum accuracy and minimum classification error.
+I have also considered the bias as 1 initially and then updated it on the basis of gradient and it improved my result from 85% to >92% accuracy. Apart from this, I got the clear idea from the Magic Equations as to how we should preprocess the data in order to proceed with Machine Learning approach.
+Hyperparameters tuning range attempted are as follows:
+N -> 1 to 50000
+M -> 100 to 3000
+Eta -> 0.01 to 0.00001
+Reg_lambda -> 0.1 to 0.9
+Convolutional Neural Network:
+For Convolutional Neural Network, the project required usage of Tensor Flow library from Google. For this model, 2 convolutional layer, 1 fully connected layer was used with first convolutional layer having 32 frames and second having 64 frames and then the results were feeded into a Hidden layer (fully connected layer) with 1024 units to get the efficient outcome. Since this model required usage of tensorflow libraries APIs were referenced from Tensorflow tutorials and project supplement in order to familiarize myself with tf libraries and their usage. In CNN, the epochs was kept at 10 only due to limited resource over my PC but the performance of CNN is very high. I verified after 1 epoch its accuracy was 93% which is far better than the other models. I did not used an additional fully connected layer due to computation time over my limited memory PC.
+
+Please refer to the end of the report for the output screenshots for different models.
+Note: Cost has been interpreted in two types, Computation time and Error Cost
+
+Performance Matrix:
+Logistic Regression:
+
+
+Accuracy (%)
+Error Cost
+Train
+Validation
+Test
+Train
+Validation
+Test
+MNIST
+92.312
+92.52
+92.18
+0.07688
+0.0748
+0.0782
+USPS
+8.2354
+0.917
+
+Logistic Regression took very less time in computation as compared to others so its cost in computation is lower than others while the Error is approximately the same as Neural Network with single hidden layer.  
+Note: Since the same set of weights(trained over MNIST) needed to be applied over the USPS data. All the USPS data was considered for the evaluation of the model.
+Single Layer Neural Network:
+
+
+Accuracy (%)
+Error Cost
+Train
+Validation
+Test
+Train
+Validation
+Test
+MNIST
+92.34
+92.3
+92.13
+0.0766
+0.077
+0.0787
+USPS
+55.09
+0.4491
+
+Single Layer Neural Network layer involved M >= 1.5D (M ⋲ Number of units in the Hidden layer and D ⋲ Dimension of the Input layer) units and with multiple epochs its computation time is higher than Logistic Regression. Hence cost of computation is higher than Logistic Regression.
+
+Convolutional Neural Network:
+
+
+Accuracy (%)
+Error Cost
+
+
+Validation
+Test
+Validation
+Test
+MNIST
+98.18
+97.879
+0.018
+0.0212
+USPS
+9.94
+0.90
+The Training set Accuracy was slightly larger than Validation set (98.2 %). It was calculated separately to prevent the Program from getting killed due to exhaustion of memory over my PC. Additional Snapshots are present at the end of the report to support my results.
+Convolutional Neural Network takes multiple layers into account and its computation time is far more than the other two models but the accuracy is much more than the others. Hence, it has higher cost in terms of computation time than the other two models but lowest error as compared to other models above.
+Note: The error has been reported as accumulated for every image in the output but its accuracy is interpreted in %
+
+No Free Lunch Theorem:
+Since the Model was trained over MNIST dataset and tested over USPS data set, the decrement in accuracy over USPS data set can be expected and it is clearly visible from the results. Hence the No Free Lunch theorem is being supported here and is thus true. As the model is not performing with same efficiency over different datasets since the training data is exclusive of USPS data.
+
+
+
+
+References:
+www.tensorflow.com (For using tensorflow APIs)
+Project Supplement
+
