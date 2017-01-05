@@ -1,0 +1,1 @@
+This folder comprises of Logistic Regression
